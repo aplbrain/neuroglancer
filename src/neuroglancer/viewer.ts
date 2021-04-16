@@ -60,11 +60,20 @@ import {NumberInputWidget} from 'neuroglancer/widget/number_input_widget';
 import {MousePositionWidget, PositionWidget} from 'neuroglancer/widget/position_widget';
 import {TrackableScaleBarOptions} from 'neuroglancer/widget/scale_bar';
 import {RPC} from 'neuroglancer/worker_rpc';
-import { SaveDialog } from './save_state/save_state';
 import { responseJson } from './util/http_request';
 import {cancellableFetchSpecialOk, parseSpecialUrl} from 'neuroglancer/util/special_protocol_request';
 
 declare var NEUROGLANCER_OVERRIDE_DEFAULT_VIEWER_OPTIONS: any
+
+type StateServer = {
+  url: string, default?: boolean
+}
+
+type StateServers = {
+  [name: string]: StateServer
+};
+
+declare const STATE_SERVERS: StateServers|undefined;
 
 export class DataManagementContext extends RefCounted {
   worker: Worker;
@@ -230,8 +239,7 @@ class TrackableViewerState extends CompoundTrackable {
     this.add('statistics', viewer.statisticsDisplayState);
     this.add('selection', viewer.selectionDetailsState);
     this.add('partialViewport', viewer.partialViewport);
-
-    this.add('jsonStateServer', viewer.jsonStateServer);
+    this.add('selectedStateServer', viewer.selectedStateServer);
   }
 
   restoreState(obj: any) {
@@ -319,10 +327,9 @@ export class Viewer extends RefCounted implements ViewerState {
       this.registerDisposer(new LayerSelectedValues(this.layerManager, this.mouseState));
   selectionDetailsState = this.registerDisposer(
       new TrackableDataSelectionState(this.coordinateSpace, this.layerSelectedValues));
+  selectedStateServer = new TrackableValue<string>('', verifyString);
 
   resetInitiated = new NullarySignal();
-
-  jsonStateServer = new TrackableValue<string>('', verifyString);
 
   get chunkManager() {
     return this.dataContext.chunkManager;
@@ -521,6 +528,66 @@ export class Viewer extends RefCounted implements ViewerState {
     this.registerDisposer(new ElementVisibilityFromTrackableBoolean(
         this.uiControlVisibility.showAnnotationToolStatus, annotationToolStatus.element));
 
+    if (typeof STATE_SERVERS !== 'undefined' && Object.keys(STATE_SERVERS).length > 0) {
+      let selectStateServer: HTMLSelectElement|undefined;
+
+      // if more than one state server, add UI so users can select the state server to use
+      if (Object.keys(STATE_SERVERS).length > 1) {
+        const selectEl = document.createElement('select');
+        selectEl.style.marginRight = '5px';
+
+        this.registerDisposer(this.selectedStateServer.changed.add(() => {
+          selectEl.value = this.selectedStateServer.value;
+        }));
+
+        selectEl.addEventListener('change', () => {
+          this.selectedStateServer.value = selectEl.value;
+        });
+
+        for (let [name, stateServer] of Object.entries(STATE_SERVERS)) {
+          const option = document.createElement('option');
+          option.textContent = name;
+          option.value = stateServer.url;
+          option.selected = !!stateServer.default;
+          selectEl.appendChild(option);
+        }
+
+        topRow.appendChild(selectEl);
+        selectStateServer = selectEl;
+      }
+
+      const button = makeIcon({text: 'Share', title: 'Share State'});
+      this.registerEventListener(button, 'click', () => {
+        const selectedStateServer = selectStateServer ? selectStateServer.value : Object.values(STATE_SERVERS)[0].url;
+        const protocol = new URL(selectedStateServer).protocol;
+        const {url: parsedUrl, credentialsProvider} = parseSpecialUrl(selectedStateServer, defaultCredentialsManager);
+
+        StatusMessage.forPromise(
+          cancellableFetchSpecialOk(credentialsProvider, parsedUrl, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(this.state.toJSON())
+              }, responseJson)
+            .then((res) => {
+              const stateUrl = new URL(res);
+              stateUrl.protocol = protocol; // copy protocol in case it contains authentication type
+              const link = `${window.location.origin}/#!${stateUrl}`;
+              navigator.clipboard.writeText(link).then(() => {
+                StatusMessage.showTemporaryMessage('Share link copied to clipboard');
+              });
+            })
+            .catch(() => {
+              StatusMessage.showTemporaryMessage(`Could not access state server.`, 4000);
+            }),
+          {
+            initialMessage: `Posting state to ${selectedStateServer}.`,
+            delay: true,
+            errorPrefix: ''
+          });
+        });
+      topRow.appendChild(button);
+    }
+
     {
       const button = makeIcon({text: '{}', title: 'Edit JSON state'});
       this.registerEventListener(button, 'click', () => {
@@ -530,15 +597,6 @@ export class Viewer extends RefCounted implements ViewerState {
           this.uiControlVisibility.showEditStateButton, button));
       topRow.appendChild(button);
     }
-
-    {
-      const button = makeIcon({text: 'Share', title: 'Share State'});
-      this.registerEventListener(button, 'click', () => {
-        this.postJsonState();
-      });
-      topRow.appendChild(button);
-    }
-
 
     {
       const button = makeIcon({text: '?', title: 'Help'});
@@ -622,36 +680,6 @@ export class Viewer extends RefCounted implements ViewerState {
     };
     updateVisibility();
     this.registerDisposer(this.visibility.changed.add(updateVisibility));
-  }
-
-  async postJsonState() {
-    let res: string|undefined = undefined;
-    if (this.jsonStateServer.value.length > 0) {
-      const {url: parsedUrl, credentialsProvider} = parseSpecialUrl(this.jsonStateServer.value, defaultCredentialsManager);
-      await StatusMessage.forPromise(
-        cancellableFetchSpecialOk(credentialsProvider, parsedUrl, {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify(this.state.toJSON())
-            }, responseJson)
-          .then(stateServerRes => {
-            res = stateServerRes;
-            StatusMessage.showTemporaryMessage(`Successfully saved state.`, 4000);
-          })
-          .catch(() => {
-            StatusMessage.showTemporaryMessage(
-              `Could not access state server.`, 4000);//, {color: 'yellow'});
-          }),
-        {
-          initialMessage: `Posting state to ${this.jsonStateServer.value}.`,
-          delay: true,
-          errorPrefix: ''
-        });
-    } else {
-      StatusMessage.showTemporaryMessage(`No state server found.`, 4000);//, {color: 'yellow'});
-    }
-
-    new SaveDialog(this, res);
   }
 
   /**

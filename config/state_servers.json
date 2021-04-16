@@ -1,0 +1,9 @@
+{
+    "test": {
+        "url": "middleauth+https://authsl1.middleauth.com/nglstate/post",
+    },
+    "production": {
+        "url": "middleauth+https://global.daf-apis.com/nglstate/post",
+        "default": true
+    }
+}
