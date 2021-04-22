@@ -60,20 +60,9 @@ import {NumberInputWidget} from 'neuroglancer/widget/number_input_widget';
 import {MousePositionWidget, PositionWidget} from 'neuroglancer/widget/position_widget';
 import {TrackableScaleBarOptions} from 'neuroglancer/widget/scale_bar';
 import {RPC} from 'neuroglancer/worker_rpc';
-import { responseJson } from './util/http_request';
-import {cancellableFetchSpecialOk, parseSpecialUrl} from 'neuroglancer/util/special_protocol_request';
+import { StateShare, stateShareEnabled } from './datasource/state_share';
 
 declare var NEUROGLANCER_OVERRIDE_DEFAULT_VIEWER_OPTIONS: any
-
-type StateServer = {
-  url: string, default?: boolean
-}
-
-type StateServers = {
-  [name: string]: StateServer
-};
-
-declare const STATE_SERVERS: StateServers|undefined;
 
 export class DataManagementContext extends RefCounted {
   worker: Worker;
@@ -528,64 +517,9 @@ export class Viewer extends RefCounted implements ViewerState {
     this.registerDisposer(new ElementVisibilityFromTrackableBoolean(
         this.uiControlVisibility.showAnnotationToolStatus, annotationToolStatus.element));
 
-    if (typeof STATE_SERVERS !== 'undefined' && Object.keys(STATE_SERVERS).length > 0) {
-      let selectStateServer: HTMLSelectElement|undefined;
-
-      // if more than one state server, add UI so users can select the state server to use
-      if (Object.keys(STATE_SERVERS).length > 1) {
-        const selectEl = document.createElement('select');
-        selectEl.style.marginRight = '5px';
-
-        this.registerDisposer(this.selectedStateServer.changed.add(() => {
-          selectEl.value = this.selectedStateServer.value;
-        }));
-
-        selectEl.addEventListener('change', () => {
-          this.selectedStateServer.value = selectEl.value;
-        });
-
-        for (let [name, stateServer] of Object.entries(STATE_SERVERS)) {
-          const option = document.createElement('option');
-          option.textContent = name;
-          option.value = stateServer.url;
-          option.selected = !!stateServer.default;
-          selectEl.appendChild(option);
-        }
-
-        topRow.appendChild(selectEl);
-        selectStateServer = selectEl;
-      }
-
-      const button = makeIcon({text: 'Share', title: 'Share State'});
-      this.registerEventListener(button, 'click', () => {
-        const selectedStateServer = selectStateServer ? selectStateServer.value : Object.values(STATE_SERVERS)[0].url;
-        const protocol = new URL(selectedStateServer).protocol;
-        const {url: parsedUrl, credentialsProvider} = parseSpecialUrl(selectedStateServer, defaultCredentialsManager);
-
-        StatusMessage.forPromise(
-          cancellableFetchSpecialOk(credentialsProvider, parsedUrl, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(this.state.toJSON())
-              }, responseJson)
-            .then((res) => {
-              const stateUrl = new URL(res);
-              stateUrl.protocol = protocol; // copy protocol in case it contains authentication type
-              const link = `${window.location.origin}/#!${stateUrl}`;
-              navigator.clipboard.writeText(link).then(() => {
-                StatusMessage.showTemporaryMessage('Share link copied to clipboard');
-              });
-            })
-            .catch(() => {
-              StatusMessage.showTemporaryMessage(`Could not access state server.`, 4000);
-            }),
-          {
-            initialMessage: `Posting state to ${selectedStateServer}.`,
-            delay: true,
-            errorPrefix: ''
-          });
-        });
-      topRow.appendChild(button);
+    if (stateShareEnabled) {
+      const stateShare = this.registerDisposer(new StateShare(this));
+      topRow.appendChild(stateShare.element);
     }
 
     {
