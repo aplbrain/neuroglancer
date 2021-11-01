@@ -449,6 +449,24 @@ export class Viewer extends RefCounted implements ViewerState {
     if (!localStorage.getItem('neuroglancer-disableWhatsNew')) {
       findWhatsNew(this);
     }
+
+    // Neuvue Event Listener
+    // Find a better home for this (part of an depedent project)
+    const allowedOrigins = ['http://localhost:8000', 'https://neuvue.io/']
+
+    window.addEventListener("message", (event) => {
+      // Do we trust the sender of this message?
+      if (!allowedOrigins.includes(event.origin))
+        return;
+      // console.log(window.location.href)
+
+      if (event.data == "state") {
+        event.source!.postMessage(
+          JSON.stringify(getCachedJson(this.state)), event.origin as string & Transferable[]
+        );
+      }
+
+    }, false);
   }
 
   private updateShowBorders() {

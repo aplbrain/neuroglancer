@@ -17,3 +17,5 @@ lib
 staging
 secrets
 .vscode
+.eggs/
+*.so
