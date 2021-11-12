@@ -452,7 +452,7 @@ export class Viewer extends RefCounted implements ViewerState {
 
     // Neuvue Event Listener
     // Find a better home for this (part of an depedent project)
-    const allowedOrigins = ['http://localhost:8000', 'https://app.neuvue.io/']
+    const allowedOrigins = ['http://localhost:8000', 'https://app.neuvue.io']
 
     window.addEventListener("message", (event) => {
       // Do we trust the sender of this message?
