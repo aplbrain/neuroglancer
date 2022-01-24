@@ -63,7 +63,7 @@ emitAnnotation(getCircleColor(vColor, borderColor));
       gl.vertexAttribDivisor(aVertexPosition, 1);
       this.circleShader.draw(
           shader, context.renderContext,
-          {interiorRadiusInPixels: 6, borderWidthInPixels: 2, featherWidthInPixels: 1},
+          {interiorRadiusInPixels: 13, borderWidthInPixels: 2, featherWidthInPixels: 1},
           context.count);
       gl.vertexAttribDivisor(aVertexPosition, 0);
       gl.disableVertexAttribArray(aVertexPosition);
