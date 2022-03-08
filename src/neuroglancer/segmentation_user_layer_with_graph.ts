@@ -38,7 +38,7 @@ import {Borrowed, RefCounted} from 'neuroglancer/util/disposable';
 import {vec3} from 'neuroglancer/util/geom';
 import {parseArray, verifyObjectProperty} from 'neuroglancer/util/json';
 import {Uint64} from 'neuroglancer/util/uint64';
-
+import {RenderHelper} from 'neuroglancer/annotation/point';
 import {NullarySignal} from './util/signal';
 
 // Already defined in segmentation_user_layer.ts
@@ -63,11 +63,14 @@ export class MulticutDisplayInformation extends RefCounted {
   constructor(
       public multicutSegments = new Uint64Set(),
       public focusMulticutSegments = new TrackableBoolean(false, false),
-      public otherSegmentsAlpha = trackableAlphaValue(0.5)) {
+      public otherSegmentsAlpha = trackableAlphaValue(0.5),
+      public pointAlpha = new RenderHelper())
+       {
     super();
     this.registerDisposer(multicutSegments.changed.add(this.changed.dispatch));
     this.registerDisposer(focusMulticutSegments.changed.add(this.changed.dispatch));
     this.registerDisposer(otherSegmentsAlpha.changed.add(this.changed.dispatch));
+    this.registerDisposer(pointAlpha.changed.add(this.changed.dispatch));
   }
 }
 

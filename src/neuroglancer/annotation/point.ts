@@ -31,7 +31,7 @@ import {emitterDependentShaderGetter, ShaderBuilder} from 'neuroglancer/webgl/sh
 
 const ANNOTATE_POINT_TOOL_ID = 'annotatePoint';
 
-class RenderHelper extends AnnotationRenderHelper {
+export class RenderHelper extends AnnotationRenderHelper {
   private circleShader = this.registerDisposer(new CircleShader(this.gl));
   private shaderGetter = emitterDependentShaderGetter(
       this, this.gl, (builder: ShaderBuilder) => this.defineShader(builder));

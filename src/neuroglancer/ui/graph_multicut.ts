@@ -427,6 +427,12 @@ export class GraphOperationLayerView extends Tab {
     this.multicutOpacityGroup.appendFixedChild(otherSegmentsAlphaWidget.element);
     this.element.appendChild(this.multicutOpacityGroup.element);
 
+    const pointWidget = this.registerDisposer(
+      new RangeWidget(displayState.multicutDisplayInformation.pointAlpha));
+      pointWidget.promptElement.textContent = 'test2: ';
+  this.multicutOpacityGroup.appendFixedChild(pointWidget.element);
+  this.element.appendChild(this.multicutOpacityGroup.element);
+
     this.timeWidget = this.registerDisposer(
         new TimeSegmentWidget(displayState, wrapper.manager.layerManager.messageWithUndo));
     const disableConfirm = () => {
