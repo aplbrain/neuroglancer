@@ -401,13 +401,6 @@ export class GraphOperationLayerView extends Tab {
                   }
                 }
 
-                // regenerate path
-                console.log("Regenerating Path!!!");
-                let has_path = this.wrapper.pathFinderState.pathBetweenSupervoxels.hasPath;
-                if (has_path) {
-                  let find_path_button = document.getElementById('find-path-button') as HTMLButtonElement;
-                  find_path_button!.click();
-                }
               }
               // TODO: Merge unsupported with edits
               const view = (<any>window)['viewer'];
