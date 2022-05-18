@@ -336,12 +336,12 @@ export class GraphOperationLayerView extends Tab {
 
     const audio = document.createElement("audio");
     const playSoundSuccess = () => {
-      audio.setAttribute("src", "https://www.dropbox.com/s/h9wozt1cd816g21/blip.mp3?raw=1")
+      audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3")
       audio.setAttribute("autoplay", "true")
       audio.play()
     }
     const playSoundError = () => {
-      audio.setAttribute("src", "https://www.dropbox.com/s/85h1jetmqq64z2h/sad.mp3?raw=1")
+      audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
       audio.setAttribute("autoplay", "true")
       audio.play()
     }
@@ -696,13 +696,13 @@ class SplitPreview extends RefCounted {
 
 
   private playSoundSuccess() {
-    this.audio.setAttribute("src", "https://www.dropbox.com/s/h9wozt1cd816g21/blip.mp3?raw=1");
+    this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3");
     this.audio.setAttribute("autoplay", "true");
     this.audio.play();
   }
 
   private playSoundError = () => {
-    this.audio.setAttribute("src", "https://www.dropbox.com/s/85h1jetmqq64z2h/sad.mp3?raw=1")
+    this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
     this.audio.setAttribute("autoplay", "true")
     this.audio.play()
   }
