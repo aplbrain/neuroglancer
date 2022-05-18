@@ -368,7 +368,20 @@ export class GraphOperationLayerView extends Tab {
             splitPreviewWrapper.disablePreview();
             if (splitRoots.length === 0) {
               StatusMessage.showTemporaryMessage(`No split found.`, 3000);
+              //fail audio
+              var audio = document.createElement("audio");
+              audio.setAttribute("src", "https://www.dropbox.com/s/85h1jetmqq64z2h/sad.mp3?raw=1")
+              audio.setAttribute("autoplay", "true")
+              audio.play()
+
             } else {
+               //success audio
+               var audio = document.createElement("audio");
+               audio.setAttribute("src", "https://www.dropbox.com/s/h9wozt1cd816g21/blip.mp3?raw=1")
+               audio.setAttribute("autoplay", "true")
+               audio.play()
+
+
               let segmentationState = this.annotationLayer.segmentationState.value!;
               for (let segment of [...sinks, ...sources]) {
                 segmentationState.rootSegments.delete(segment.rootId);
@@ -698,6 +711,11 @@ class SplitPreview extends RefCounted {
               enablePreviewStyles();
               this.wrapper.chunkedGraphLayer!.splitPreview(sources, sinks)
                   .then(({supervoxelConnectedComponents, isSplitIllegal}) => {
+                    //success audio
+                    var audio = document.createElement("audio");
+                    audio.setAttribute("src", "https://www.dropbox.com/s/h9wozt1cd816g21/blip.mp3?raw=1")
+                    audio.setAttribute("autoplay", "true")
+                    audio.play()
                     this.previewPending = false;
                     // Cache results in case the user wants to toggle looking at preview and
                     // multicut
@@ -707,10 +725,20 @@ class SplitPreview extends RefCounted {
                     this.enablePreview();
                   })
                   .catch(() => {
+                    //fail audio
+                    var audio = document.createElement("audio");
+                    audio.setAttribute("src", "https://www.dropbox.com/s/85h1jetmqq64z2h/sad.mp3?raw=1")
+                    audio.setAttribute("autoplay", "true")
+                    audio.play()
                     this.revertPreviewButton();
                     this.previewPending = false;
                   });
             } else {
+              //fail audio
+              var audio = document.createElement("audio");
+              audio.setAttribute("src", "https://www.dropbox.com/s/85h1jetmqq64z2h/sad.mp3?raw=1")
+              audio.setAttribute("autoplay", "true")
+              audio.play()
               StatusMessage.showTemporaryMessage(
                   'You must select at least one source and one sink to perform a split preview.',
                   5000);
