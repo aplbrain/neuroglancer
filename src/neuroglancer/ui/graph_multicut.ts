@@ -338,7 +338,7 @@ export class GraphOperationLayerView extends Tab {
     const audio = document.createElement("audio");
     const playSoundSuccess = () => {
       if (getEnableSound()) {
-        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3")
+        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/success.m4a")
         audio.setAttribute("autoplay", "true")
         audio.play()
       }
@@ -346,7 +346,7 @@ export class GraphOperationLayerView extends Tab {
     }
     const playSoundError = () => {
       if (getEnableSound()){
-        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
+        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/error.m4a")
         audio.setAttribute("autoplay", "true")
         audio.play()
       }
@@ -703,7 +703,7 @@ class SplitPreview extends RefCounted {
 
   private playSoundSuccess() {
     if (getEnableSound()) {
-      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3");
+      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/success.m4a");
       this.audio.setAttribute("autoplay", "true");
       this.audio.play();
     }
@@ -711,7 +711,7 @@ class SplitPreview extends RefCounted {
 
   private playSoundError = () => {
     if (getEnableSound()) {
-      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
+      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/error.m4a")
       this.audio.setAttribute("autoplay", "true")
       this.audio.play()
     }
