@@ -52,6 +52,7 @@ import {RangeWidget} from 'neuroglancer/widget/range';
 import {StackView, Tab} from 'neuroglancer/widget/tab_view';
 import {makeTextIconButton} from 'neuroglancer/widget/text_icon_button';
 import {TimeSegmentWidget} from 'neuroglancer/widget/time_segment_widget';
+import {getEnableSound} from 'neuroglancer/preferences/user_preferences';
 
 type GraphOperationMarkerId = {
   id: string,
@@ -336,14 +337,19 @@ export class GraphOperationLayerView extends Tab {
 
     const audio = document.createElement("audio");
     const playSoundSuccess = () => {
-      audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3")
-      audio.setAttribute("autoplay", "true")
-      audio.play()
+      if (getEnableSound()) {
+        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3")
+        audio.setAttribute("autoplay", "true")
+        audio.play()
+      }
+
     }
     const playSoundError = () => {
-      audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
-      audio.setAttribute("autoplay", "true")
-      audio.play()
+      if (getEnableSound()){
+        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
+        audio.setAttribute("autoplay", "true")
+        audio.play()
+      }
     }
 
     const toolbox = document.createElement('div');
@@ -696,15 +702,19 @@ class SplitPreview extends RefCounted {
 
 
   private playSoundSuccess() {
-    this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3");
-    this.audio.setAttribute("autoplay", "true");
-    this.audio.play();
+    if (getEnableSound()) {
+      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/blip.mp3");
+      this.audio.setAttribute("autoplay", "true");
+      this.audio.play();
+    }
   }
 
   private playSoundError = () => {
-    this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
-    this.audio.setAttribute("autoplay", "true")
-    this.audio.play()
+    if (getEnableSound()) {
+      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/sad.mp3")
+      this.audio.setAttribute("autoplay", "true")
+      this.audio.play()
+    }
   }
 
   private createPreviewButton() {

@@ -13,6 +13,8 @@ class UserPreferences {
   preserveSourceAnnotations: TrackableBoolean;
   saveToAddressBar: TrackableBoolean;
   unshareWarning: TrackableBoolean;
+  enableSound: TrackableBoolean;
+
   constructor() {
     // mesh rendering is enabled by default, unless user selects not to
     this.renderMeshByDefault = new TrackableBoolean(true, true, 'renderMeshByDefault');
@@ -23,6 +25,7 @@ class UserPreferences {
     this.saveToAddressBar = new TrackableBoolean(false, false, 'saveToAddressBar');
     this.unshareWarning = new TrackableBoolean(true, true, 'unshareWarning');
     this.preserveSourceAnnotations = new TrackableBoolean(true, true, 'preserveSourceAnnotations');
+    this.enableSound = new TrackableBoolean(false, false, 'enableSound');
 
     this.renderMeshByDefault.restoreState({});
     this.prefetchSliceViewChunks.restoreState({});
@@ -31,6 +34,7 @@ class UserPreferences {
     this.saveToAddressBar.restoreState({});
     this.unshareWarning.restoreState({});
     this.preserveSourceAnnotations.restoreState({});
+    this.enableSound.restoreState({});
 
     this.renderMeshByDefault.changed.add(() => {
       location.reload(false);
@@ -66,6 +70,10 @@ export function getUnshareWarning(): TrackableBoolean {
 
 export function dismissUnshareWarning() {
   userPreferences.unshareWarning.value = false;
+}
+
+export function getEnableSound(): TrackableBoolean {
+  return userPreferences.enableSound;
 }
 
 export class UserPreferencesDialog extends Overlay {
@@ -138,5 +146,6 @@ export class UserPreferencesDialog extends Overlay {
     scroll.appendChild(evictButton);
     */
     addCheckbox('Preserve Source Annotations', userPreferences.preserveSourceAnnotations);
+    addCheckbox('Enable sound', userPreferences.enableSound);
   }
 }
