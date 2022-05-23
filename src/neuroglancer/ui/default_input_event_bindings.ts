@@ -51,7 +51,6 @@ export function getDefaultGlobalBindings() {
     map.set('keyp', 'refresh-all-meshes');
     map.set('keyi', 'increase-segmentation-opacity');
     map.set('keyx', 'dismiss-all-status-messages');
-    map.set('keyq', 'refresh-split-preview')
     defaultGlobalBindings = map;
   }
   return defaultGlobalBindings;
