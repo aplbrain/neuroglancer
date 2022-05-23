@@ -684,9 +684,9 @@ export class GraphOperationLayerView extends Tab {
 /**
  * Wrapper class for split preview UI logic
  */
-export class SplitPreview extends RefCounted {
+class SplitPreview extends RefCounted {
   button: HTMLButtonElement;
-  public inPreviewMode = false;
+  private inPreviewMode = false;
   private splitPreviewRenderLayers: SupervoxelRenderLayer[] = [];
   private cachedPreviewConnectedComponents: Uint64Set[] = [];
   private removeStatusMessages: (() => void)|undefined;
