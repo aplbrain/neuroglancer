@@ -684,9 +684,9 @@ export class GraphOperationLayerView extends Tab {
 /**
  * Wrapper class for split preview UI logic
  */
-class SplitPreview extends RefCounted {
+ export class SplitPreview extends RefCounted {
   button: HTMLButtonElement;
-  private inPreviewMode = false;
+  public inPreviewMode = false;
   private splitPreviewRenderLayers: SupervoxelRenderLayer[] = [];
   private cachedPreviewConnectedComponents: Uint64Set[] = [];
   private removeStatusMessages: (() => void)|undefined;
@@ -809,6 +809,7 @@ class SplitPreview extends RefCounted {
 
   public disablePreview =
       () => {
+        console.log('disabling Preview MEME')
         this.inPreviewMode = false;
         this.revertPreviewButton();
         // Remove preview render layers
@@ -825,6 +826,7 @@ class SplitPreview extends RefCounted {
       }
 
   private revertPreviewButton = () => {
+    console.log('REVERT PREVIEW BUTTON')
     const {button} = this;
     button.title = 'Split preview';
     button.style.borderStyle = '';
