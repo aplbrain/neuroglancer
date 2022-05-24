@@ -32,7 +32,7 @@ import {RootLayoutContainer} from 'neuroglancer/layer_groups_layout';
 import {TopLevelLayerListSpecification} from 'neuroglancer/layer_specification';
 import {NavigationState, Pose} from 'neuroglancer/navigation_state';
 import {overlaysOpen} from 'neuroglancer/overlay';
-import {getSaveToAddressBar, UserPreferencesDialog} from 'neuroglancer/preferences/user_preferences';
+import {getSaveToAddressBar, UserPreferencesDialog, getEnableSound} from 'neuroglancer/preferences/user_preferences';
 import {saverToggle, SaveState, storageAccessible} from 'neuroglancer/save_state/save_state';
 import {SegmentationUserLayer} from 'neuroglancer/segmentation_user_layer';
 import {isSegmentationUserLayerWithGraph} from 'neuroglancer/segmentation_user_layer_with_graph';
@@ -241,6 +241,7 @@ export class Viewer extends RefCounted implements ViewerState {
   scaleBarOptions = new TrackableScaleBarOptions();
   contextMenu: ContextMenu;
   statisticsDisplayState = new StatisticsDisplayState();
+  enableSound = getEnableSound();
 
   layerSelectedValues =
       this.registerDisposer(new LayerSelectedValues(this.layerManager, this.mouseState));
@@ -368,6 +369,7 @@ export class Viewer extends RefCounted implements ViewerState {
         'systemMemoryLimit', this.dataContext.chunkQueueManager.capacities.systemMemory.sizeLimit);
     state.add(
         'concurrentDownloads', this.dataContext.chunkQueueManager.capacities.download.itemLimit);
+    state.add('enableSound', this.enableSound);
     state.add('stateServer', this.stateServer);
     state.add('jsonStateServer', this.jsonStateServer);
     state.add('selectedLayer', this.selectedLayer);

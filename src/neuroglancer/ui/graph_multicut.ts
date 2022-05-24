@@ -337,7 +337,7 @@ export class GraphOperationLayerView extends Tab {
 
     const audio = document.createElement("audio");
     const playSoundSuccess = () => {
-      if (getEnableSound()) {
+      if (getEnableSound().value) {
         audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/success.m4a")
         audio.setAttribute("autoplay", "true")
         audio.play()
@@ -345,7 +345,7 @@ export class GraphOperationLayerView extends Tab {
 
     }
     const playSoundError = () => {
-      if (getEnableSound()){
+      if (getEnableSound().value){
         audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/error.m4a")
         audio.setAttribute("autoplay", "true")
         audio.play()
@@ -702,7 +702,7 @@ class SplitPreview extends RefCounted {
 
 
   private playSoundSuccess() {
-    if (getEnableSound()) {
+    if (getEnableSound().value) {
       this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/success.m4a");
       this.audio.setAttribute("autoplay", "true");
       this.audio.play();
@@ -710,7 +710,7 @@ class SplitPreview extends RefCounted {
   }
 
   private playSoundError = () => {
-    if (getEnableSound()) {
+    if (getEnableSound().value) {
       this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/error.m4a")
       this.audio.setAttribute("autoplay", "true")
       this.audio.play()
