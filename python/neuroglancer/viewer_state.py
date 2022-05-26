@@ -818,6 +818,7 @@ class ViewerState(JsonObjectWrapper):
     gpu_memory_limit = gpuMemoryLimit = wrapped_property('gpuMemoryLimit', optional(int))
     system_memory_limit = systemMemoryLimit = wrapped_property('systemMemoryLimit', optional(int))
     concurrent_downloads = concurrentDownloads = wrapped_property('concurrentDownloads', optional(int))
+    enable_sound = enableSound = wrapped_property('enableSound', optional(bool, False))
     layers = wrapped_property('layers', Layers)
     layout = wrapped_property('layout', layout_specification)
     cross_section_background_color = crossSectionBackgroundColor = wrapped_property(
