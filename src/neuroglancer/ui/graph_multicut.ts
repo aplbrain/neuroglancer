@@ -342,7 +342,6 @@ export class GraphOperationLayerView extends Tab {
         audio.setAttribute("autoplay", "true")
         audio.play()
       }
-
     }
     const playSoundError = () => {
       if (getEnableSound().value){
