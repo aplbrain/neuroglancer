@@ -535,6 +535,10 @@ export class GraphOperationLayerView extends Tab {
     this.previousSelectedId = newSelectedId;
   }
 
+  public getSplitPreview() {
+    return this.splitPreviewWrapper;
+  }
+
   private updateHoverView() {
     const selectedValue = this.annotationLayer.hoverState.value;
     let newHoverId: string|undefined;
@@ -809,7 +813,6 @@ export class GraphOperationLayerView extends Tab {
 
   public disablePreview =
       () => {
-        console.log('disabling Preview MEME')
         this.inPreviewMode = false;
         this.revertPreviewButton();
         // Remove preview render layers
@@ -826,7 +829,6 @@ export class GraphOperationLayerView extends Tab {
       }
 
   private revertPreviewButton = () => {
-    console.log('REVERT PREVIEW BUTTON')
     const {button} = this;
     button.title = 'Split preview';
     button.style.borderStyle = '';

@@ -329,12 +329,7 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
           break;
         }
         case 'refresh-split-preview': {
-          StatusMessage.showTemporaryMessage(`Refreshing split preview...`);
-          let Preview = new SplitPreview(this, this.graphOperationLayerState.value!);
-          if (Preview.inPreviewMode) {
-            Preview.disablePreview()
-          };
-          Preview.button.click();
+          this.refreshSplitPreview();
           break;
         }
         case 'switch-multicut-group': {
@@ -581,6 +576,16 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
           }
         }
       }
+    }
+
+    refreshSplitPreview() {
+      StatusMessage.showTemporaryMessage(`Refreshing split preview...`);
+      this.
+      if (Preview.inPreviewMode) {
+        Preview.disablePreview()
+      };
+      let Preview = new SplitPreview(this, this.graphOperationLayerState.value!);
+      Preview.button.click();
     }
 
     private lastDeselectionMessage: StatusMessage|undefined;
