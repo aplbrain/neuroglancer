@@ -31,7 +31,7 @@ import {StatusMessage} from 'neuroglancer/status';
 import {trackableAlphaValue} from 'neuroglancer/trackable_alpha';
 import {TrackableBoolean} from 'neuroglancer/trackable_boolean';
 import {TrackableValue, WatchableRefCounted, WatchableValue} from 'neuroglancer/trackable_value';
-import {enableSplitPointTool, GraphOperationTab, PlaceGraphOperationMarkerTool, SelectedGraphOperationState} from 'neuroglancer/ui/graph_multicut';
+import {enableSplitPointTool, GraphOperationTab, PlaceGraphOperationMarkerTool, SelectedGraphOperationState, SplitPreview} from 'neuroglancer/ui/graph_multicut';
 import {Uint64Set} from 'neuroglancer/uint64_set';
 import {TrackableRGB} from 'neuroglancer/util/color';
 import {Borrowed, RefCounted} from 'neuroglancer/util/disposable';
@@ -328,6 +328,10 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
           this.reloadAllManifests();
           break;
         }
+        case 'refresh-split-preview': {
+          this.refreshSplitPreview();
+          break;
+        }
         case 'switch-multicut-group': {
           if (this.tool.value === undefined ||
               (!(this.tool.value instanceof PlaceGraphOperationMarkerTool))) {
@@ -572,6 +576,16 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
           }
         }
       }
+    }
+
+    refreshSplitPreview() {
+      StatusMessage.showTemporaryMessage(`Refreshing split preview...`);
+      this.
+      if (Preview.inPreviewMode) {
+        Preview.disablePreview()
+      };
+      let Preview = new SplitPreview(this, this.graphOperationLayerState.value!);
+      Preview.button.click();
     }
 
     private lastDeselectionMessage: StatusMessage|undefined;
