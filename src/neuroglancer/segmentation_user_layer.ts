@@ -133,6 +133,9 @@ export class SegmentationUserLayer extends Base {
   // Whether to load skeletons for this layer.
   loadSkeletons = new TrackableBoolean(true, true);
 
+  // Whether to show clipping plane for this layer
+  showClippingPlane = new TrackableBoolean(false, false);
+
   constructor(public manager: LayerListSpecification, x: any) {
     super(manager, x);
     this.displayState.rootSegments.changed.add((segmentIds: Uint64[]|Uint64|null, add: boolean) => {
@@ -156,6 +159,7 @@ export class SegmentationUserLayer extends Base {
     this.displayState.renderScaleTarget.changed.add(this.specificationChanged.dispatch);
     this.displayState.shatterSegmentEquivalences.changed.add(this.specificationChanged.dispatch);
     this.ignoreSegmentInteractions.changed.add(this.specificationChanged.dispatch);
+    this.showClippingPlane.changed.add(this.specificationChanged.dispatch);
     this.loadMeshes.changed.add(this.specificationChanged.dispatch);
     this.loadSkeletons.changed.add(this.specificationChanged.dispatch);
     this.tabs.add(
@@ -659,6 +663,8 @@ class DisplayOptionsTab extends Tab {
   private groupSegmentSelection =
       this.registerDisposer(new MinimizableGroupWidget('Segment Selection'));
   private groupOmniInfo = this.registerDisposer(new MinimizableGroupWidget('Omni Segment Info'));
+  private groupClippingPlane = this.registerDisposer(new MinimizableGroupWidget('Clipping Plane'));
+
   visibleSegmentWidget = this.registerDisposer(new SegmentSetWidget(this.layer.displayState));
   addSegmentWidget = this.registerDisposer(new Uint64EntryWidget());
   selectedAlphaWidget =
@@ -674,7 +680,7 @@ class DisplayOptionsTab extends Tab {
     super();
     const {element} = this;
     element.classList.add('segmentation-dropdown');
-    const {group2D, group3D, groupSegmentSelection, groupOmniInfo} = this;
+    const {group2D, group3D, groupSegmentSelection, groupOmniInfo, groupClippingPlane} = this;
     let {selectedAlphaWidget, notSelectedAlphaWidget, saturationWidget, objectAlphaWidget} = this;
     selectedAlphaWidget.promptElement.textContent = 'Opacity (on)';
     notSelectedAlphaWidget.promptElement.textContent = 'Opacity (off)';
@@ -745,6 +751,21 @@ class DisplayOptionsTab extends Tab {
       label.appendChild(document.createTextNode('Ignore segment interactions'));
       label.appendChild(checkbox.element);
       groupSegmentSelection.appendFixedChild(label);
+    }
+
+    //PUT CLIPPING STUFF BELOW
+    {
+      const checkbox =
+          this.registerDisposer(new TrackableBooleanCheckbox(layer.showClippingPlane));
+      checkbox.element.className =
+          'neuroglancer-segmentation-dropdown-hide-segment-zero neuroglancer-noselect';
+      const label = document.createElement('label');
+      label.className =
+          'neuroglancer-segmentation-dropdown-ignore-segment-interactions neuroglancer-noselect';
+      label.appendChild(document.createTextNode('Show Clipping Plane'));
+      label.appendChild(checkbox.element);
+      groupClippingPlane.appendFixedChild(label);
+      //HERERE
     }
 
     {
@@ -855,6 +876,7 @@ class DisplayOptionsTab extends Tab {
     element.appendChild(group3D.element);
     element.appendChild(groupSegmentSelection.element);
     element.appendChild(groupOmniInfo.element);
+    element.appendChild(groupClippingPlane.element);
 
     this.visibility.changed.add(() => {
       if (this.visible) {

@@ -225,6 +225,8 @@ class SegmentationLayerBase(Layer, _AnnotationLayerOptions):
     cross_section_render_scale = crossSectionRenderScale = wrapped_property(
         'crossSectionRenderScale', optional(float, 1))
     mesh_render_scale = meshRenderScale = wrapped_property('meshRenderScale', optional(float, 10))
+    show_clipping_plane = showClippingPlane = wrapped_property(
+        'showClippingPlane', optional(bool, False))
 
     @staticmethod
     def interpolate(a, b, t):

@@ -46,6 +46,7 @@ export enum AnnotationType {
   POINT,
   LINE,
   AXIS_ALIGNED_BOUNDING_BOX,
+  CLIPPING_PLANE,
   ELLIPSOID,
   COLLECTION,
   LINE_STRIP,
@@ -55,7 +56,7 @@ export enum AnnotationType {
 export const annotationTypes = [
   AnnotationType.POINT, AnnotationType.LINE, AnnotationType.AXIS_ALIGNED_BOUNDING_BOX,
   AnnotationType.ELLIPSOID, AnnotationType.COLLECTION, AnnotationType.LINE_STRIP,
-  AnnotationType.SPOKE
+  AnnotationType.SPOKE, AnnotationType.CLIPPING_PLANE
 ];
 
 export interface AnnotationBase {
@@ -90,6 +91,12 @@ export interface AxisAlignedBoundingBox extends AnnotationBase {
   type: AnnotationType.AXIS_ALIGNED_BOUNDING_BOX;
 }
 
+export interface ClippingPlane extends AnnotationBase {
+  pointA: vec3;
+  pointB: vec3;
+  type: AnnotationType.CLIPPING_PLANE;
+}
+
 export interface Ellipsoid extends AnnotationBase {
   center: vec3;
   radii: vec3;
@@ -121,7 +128,7 @@ export interface Spoke extends Collection {
   connected: true;
 }
 
-export type Annotation = Line|Point|AxisAlignedBoundingBox|Ellipsoid|Collection|LineStrip|Spoke;
+export type Annotation = Line|Point|AxisAlignedBoundingBox|Ellipsoid|Collection|LineStrip|Spoke|ClippingPlane;
 
 export interface AnnotationTag {
   id: number;

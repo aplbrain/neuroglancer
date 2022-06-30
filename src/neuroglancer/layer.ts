@@ -22,7 +22,7 @@ import {SpatialPosition} from 'neuroglancer/navigation_state';
 import {TrackableRefCounted, TrackableValue, WatchableSet} from 'neuroglancer/trackable_value';
 import {restoreTool, Tool} from 'neuroglancer/ui/tool';
 import {Borrowed, Owned, RefCounted} from 'neuroglancer/util/disposable';
-import {BoundingBox, vec3} from 'neuroglancer/util/geom';
+import {BoundingBox, vec3, ClippingPlane} from 'neuroglancer/util/geom';
 import {verifyObject, verifyObjectProperty, verifyOptionalBoolean, verifyOptionalString, verifyPositiveInt} from 'neuroglancer/util/json';
 import {NullarySignal} from 'neuroglancer/util/signal';
 import {addSignalBinding, removeSignalBinding, SignalBindingUpdater} from 'neuroglancer/util/signal_binding_updater';
@@ -74,6 +74,11 @@ export class RenderLayer extends RefCounted {
    * Bounding box for this layer, in nanometers.
    */
   boundingBox: BoundingBox|null = null;
+
+  /**
+   * Bounding box for this layer, in nanometers.
+   */
+  clippingPlane: ClippingPlane|null = null;
 
   /**
    * Transform the stored pickedValue and offset associated with the retrieved pick ID into the

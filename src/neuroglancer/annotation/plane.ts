@@ -18,7 +18,7 @@
  * @file Support for rendering bounding box annotations.
  */
 
-import {AnnotationType, AxisAlignedBoundingBox} from 'neuroglancer/annotation';
+import {AnnotationType, AxisAlignedBoundingBox, ClippingPlane} from 'neuroglancer/annotation';
 import {PlaceTwoCornerAnnotationTool} from 'neuroglancer/annotation/annotation';
 import {AnnotationRenderContext, AnnotationRenderHelper, registerAnnotationTypeRenderHandler} from 'neuroglancer/annotation/type_handler';
 import {BoundingBoxCrossSectionRenderHelper, vertexBasePositions} from 'neuroglancer/sliceview/bounding_box_shader_helper';
@@ -33,7 +33,7 @@ import {GL} from 'neuroglancer/webgl/context';
 import {LineShader, VERTICES_PER_LINE} from 'neuroglancer/webgl/lines';
 import {emitterDependentShaderGetter, ShaderBuilder, ShaderProgram} from 'neuroglancer/webgl/shader';
 
-const ANNOTATE_BOUNDING_BOX_TOOL_ID = 'annotateBoundingBox';
+const CLIPPING_PLANE_TOOL_ID = 'ClippingPlane';
 const EDGES_PER_PLANE = 4;
 const CORNERS_PER_PLANE = 4;
 
@@ -41,7 +41,8 @@ const FULL_OBJECT_PICK_OFFSET = 0;
 const CORNERS_PICK_OFFSET = FULL_OBJECT_PICK_OFFSET + 1;
 const EDGES_PICK_OFFSET = CORNERS_PICK_OFFSET + CORNERS_PER_PLANE;
 const FACES_PICK_OFFSET = EDGES_PICK_OFFSET + EDGES_PER_PLANE;
-const PICK_IDS_PER_INSTANCE = FACES_PICK_OFFSET + 6;
+const PICK_IDS_PER_INSTANCE = FACES_PICK_OFFSET + 1;
+//const PICK_IDS_PER_INSTANCE = FACES_PICK_OFFSET + 6;
 
 //these are the edges not the points, you have to make EACH edge, not just 4 points
 const edgePlaneCornerOffsetData = Float32Array.from([
@@ -125,16 +126,17 @@ class PerspectiveViewRenderHelper extends RenderHelper {
         this.defineShader(builder);
         this.lineShader.defineShader(builder);
 
-        // XYZ corners of box ranging from [0, 0, 0] to [1, 1, 1].
-        builder.addAttribute('highp vec3', 'aBoxCornerOffset1');
+        // XYZ corners of plane ranging from [0, 0, 0] to [1, 1, 1].
+        builder.addAttribute('highp vec3', 'aPlaneCornerOffset1');
 
-        // Last component of aBoxCornerOffset2 is the edge index.
-        builder.addAttribute('highp vec4', 'aBoxCornerOffset2');
+        // Last component of aPlaneCornerOffset2 is the edge index.
+        builder.addAttribute('highp vec4', 'aPlaneCornerOffset2');
+        //mix — linearly interpolate between two values (start of range, end of range, value used to interpolate between x and y)
         builder.setVertexMain(`
-vec3 vertexPosition1 = mix(aLower, aUpper, aBoxCornerOffset1);
-vec3 vertexPosition2 = mix(aLower, aUpper, aBoxCornerOffset2.xyz);
+vec3 vertexPosition1 = mix(aLower, aUpper, aPlaneCornerOffset1);
+vec3 vertexPosition2 = mix(aLower, aUpper, aPlaneCornerOffset2.xyz);
 emitLine(uProjection, vertexPosition1, vertexPosition2);
-${this.setPartIndex(builder, 'uint(aBoxCornerOffset2.w)')};
+${this.setPartIndex(builder, 'uint(aPlaneCornerOffset2.w)')};
 `);
         builder.setFragmentMain(`
 emitAnnotation(vec4(vColor.rgb, getLineAlpha()));
@@ -155,12 +157,12 @@ emitAnnotation(vec4(vColor.rgb, getLineAlpha()));
         this.circleShader.defineShader(builder, this.targetIsSliceView);
 
         // XYZ corners of box ranging from [0, 0, 0] to [1, 1, 1].
-        builder.addAttribute('highp vec3', 'aBoxCornerOffset');
+        builder.addAttribute('highp vec3', 'aPlaneCornerOffset');
 
         builder.setVertexMain(`
-vec3 vertexPosition = mix(aLower, aUpper, aBoxCornerOffset);
+vec3 vertexPosition = mix(aLower, aUpper, aPlaneCornerOffset);
 emitCircle(uProjection * vec4(vertexPosition, 1.0));
-uint cornerIndex = uint(aBoxCornerOffset.x + aBoxCornerOffset.y * 2.0 + aBoxCornerOffset.z * 4.0);
+uint cornerIndex = uint(aPlaneCornerOffset.x + aPlaneCornerOffset.y * 2.0 + aPlaneCornerOffset.z * 4.0);
 uint cornerPickOffset = ${CORNERS_PICK_OFFSET}u + cornerIndex;
 ${this.setPartIndex(builder, 'cornerPickOffset')};
 `);
@@ -174,22 +176,22 @@ emitAnnotation(getCircleColor(vColor, borderColor));
     const shader = this.edgeShaderGetter(context.renderContext.emitter);
     const {gl} = this;
     this.enable(shader, context, () => {
-      const aBoxCornerOffset1 = shader.attribute('aBoxCornerOffset1');
-      const aBoxCornerOffset2 = shader.attribute('aBoxCornerOffset2');
+      const aPlaneCornerOffset1 = shader.attribute('aPlaneCornerOffset1');
+      const aPlaneCornerOffset2 = shader.attribute('aPlaneCornerOffset2');
 
       this.edgeBoxCornerOffsetsBuffer.bindToVertexAttrib(
-          aBoxCornerOffset1, /*components=*/3, /*attributeType=*/WebGL2RenderingContext.FLOAT,
+          aPlaneCornerOffset1, /*components=*/3, /*attributeType=*/WebGL2RenderingContext.FLOAT,
           /*normalized=*/false,
           /*stride=*/4 * 7, /*offset=*/0);
 
       this.edgeBoxCornerOffsetsBuffer.bindToVertexAttrib(
-          aBoxCornerOffset2, /*components=*/4, /*attributeType=*/WebGL2RenderingContext.FLOAT,
+          aPlaneCornerOffset2, /*components=*/4, /*attributeType=*/WebGL2RenderingContext.FLOAT,
           /*normalized=*/false,
           /*stride=*/4 * 7, /*offset=*/4 * 3);
 
       this.lineShader.draw(shader, context.renderContext, /*lineWidth=*/1, 1, context.count);
-      gl.disableVertexAttribArray(aBoxCornerOffset1);
-      gl.disableVertexAttribArray(aBoxCornerOffset2);
+      gl.disableVertexAttribArray(aPlaneCornerOffset1);
+      gl.disableVertexAttribArray(aPlaneCornerOffset2);
     });
   }
 
@@ -197,15 +199,15 @@ emitAnnotation(getCircleColor(vColor, borderColor));
     const shader = this.cornerShaderGetter(context.renderContext.emitter);
     const {gl} = this;
     this.enable(shader, context, () => {
-      const aBoxCornerOffset = shader.attribute('aBoxCornerOffset');
+      const aPlaneCornerOffset = shader.attribute('aPlaneCornerOffset');
       this.boxCornerOffsetsBuffer.bindToVertexAttrib(
-          aBoxCornerOffset, /*components=*/3, /*attributeType=*/WebGL2RenderingContext.FLOAT,
+          aPlaneCornerOffset, /*components=*/3, /*attributeType=*/WebGL2RenderingContext.FLOAT,
           /*normalized=*/false);
       this.circleShader.draw(
           shader, context.renderContext,
           {interiorRadiusInPixels: 1, borderWidthInPixels: 0, featherWidthInPixels: 1},
           context.count);
-      gl.disableVertexAttribArray(aBoxCornerOffset);
+      gl.disableVertexAttribArray(aPlaneCornerOffset);
     });
   }
 
@@ -341,11 +343,11 @@ function snapPositionToCorner(
   vec3.transformMat4(position, position, objectToData);
 }
 
-registerAnnotationTypeRenderHandler(AnnotationType.AXIS_ALIGNED_BOUNDING_BOX, {
+registerAnnotationTypeRenderHandler(AnnotationType.CLIPPING_PLANE, {
   bytes: 6 * 4,
   serializer: (buffer: ArrayBuffer, offset: number, numAnnotations: number) => {
     const coordinates = new Float32Array(buffer, offset, numAnnotations * 6);
-    return (annotation: AxisAlignedBoundingBox, index: number) => {
+    return (annotation: ClippingPlane, index: number) => {
       const {pointA, pointB} = annotation;
       const coordinateOffset = index * 6;
       coordinates[coordinateOffset] = Math.min(pointA[0], pointB[0]);
@@ -389,7 +391,7 @@ registerAnnotationTypeRenderHandler(AnnotationType.AXIS_ALIGNED_BOUNDING_BOX, {
   },
 
   updateViaRepresentativePoint:
-      (oldAnnotation: AxisAlignedBoundingBox, position: vec3, dataToObject: mat4,
+      (oldAnnotation: ClippingPlane, position: vec3, dataToObject: mat4,
        partIndex: number) => {
         let newPt = vec3.transformMat4(vec3.create(), position, dataToObject);
         let baseBox = {...oldAnnotation};
@@ -413,17 +415,17 @@ registerAnnotationTypeRenderHandler(AnnotationType.AXIS_ALIGNED_BOUNDING_BOX, {
       }
 });
 
-export class PlaceBoundingBoxTool extends PlaceTwoCornerAnnotationTool {
+export class PlaceClippingPlaneTool extends PlaceTwoCornerAnnotationTool {
   get description() {
-    return `annotate bounding box`;
+    return `clipping plane`;
   }
 
   toJSON() {
-    return ANNOTATE_BOUNDING_BOX_TOOL_ID;
+    return CLIPPING_PLANE_TOOL_ID;
   }
 }
-PlaceBoundingBoxTool.prototype.annotationType = AnnotationType.AXIS_ALIGNED_BOUNDING_BOX;
+PlaceClippingPlaneTool.prototype.annotationType = AnnotationType.CLIPPING_PLANE;
 
 registerTool(
-    ANNOTATE_BOUNDING_BOX_TOOL_ID,
-    (layer, options) => new PlaceBoundingBoxTool(<UserLayerWithAnnotations>layer, options));
+    CLIPPING_PLANE_TOOL_ID,
+    (layer, options) => new PlaceClippingPlaneTool(<UserLayerWithAnnotations>layer, options));

@@ -36,7 +36,7 @@ export abstract class PlaceAnnotationTool extends Tool {
   annotationDescription: string|undefined;
   annotationType: AnnotationType.POINT|AnnotationType.LINE|
       AnnotationType.AXIS_ALIGNED_BOUNDING_BOX|AnnotationType.ELLIPSOID|
-      AnnotationType.COLLECTION|AnnotationType.LINE_STRIP|AnnotationType.SPOKE;
+      AnnotationType.COLLECTION|AnnotationType.LINE_STRIP|AnnotationType.SPOKE|AnnotationType.CLIPPING_PLANE;
   parentTool?: MultiStepAnnotationTool;
   constructor(public layer: UserLayerWithAnnotations, options: any) {
     super();
@@ -165,7 +165,7 @@ export abstract class TwoStepAnnotationTool extends PlaceAnnotationTool {
 }
 
 export abstract class PlaceTwoCornerAnnotationTool extends TwoStepAnnotationTool {
-  annotationType: AnnotationType.LINE|AnnotationType.AXIS_ALIGNED_BOUNDING_BOX;
+  annotationType: AnnotationType.LINE|AnnotationType.AXIS_ALIGNED_BOUNDING_BOX|AnnotationType.CLIPPING_PLANE;
 
   getInitialAnnotation(mouseState: MouseSelectionState, annotationLayer: AnnotationLayerState):
       Annotation {
@@ -186,6 +186,7 @@ export abstract class PlaceTwoCornerAnnotationTool extends TwoStepAnnotationTool
     return {...oldAnnotation, pointB: point};
   }
 }
+
 
 export type Spoof = {
   mouse?: MouseSelectionState,
