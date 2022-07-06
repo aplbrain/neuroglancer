@@ -46,11 +46,11 @@ export enum AnnotationType {
   POINT,
   LINE,
   AXIS_ALIGNED_BOUNDING_BOX,
-  CLIPPING_PLANE,
   ELLIPSOID,
   COLLECTION,
   LINE_STRIP,
-  SPOKE
+  SPOKE,
+  CLIPPING_PLANE
 }
 
 export const annotationTypes = [
@@ -999,8 +999,8 @@ export function serializeAnnotations(allAnnotations: Annotation[][]): Serialized
 
 export class AnnotationSerializer {
   annotations:
-      [Point[], Line[], AxisAlignedBoundingBox[], Ellipsoid[], Collection[], LineStrip[], Spoke[]] =
-          [[], [], [], [], [], [], []];
+      [Point[], Line[], AxisAlignedBoundingBox[], Ellipsoid[], Collection[], LineStrip[], Spoke[], ClippingPlane[]] =
+          [[], [], [], [], [], [], [], []];
   add(annotation: Annotation) {
     (<Annotation[]>this.annotations[annotation.type]).push(annotation);
   }

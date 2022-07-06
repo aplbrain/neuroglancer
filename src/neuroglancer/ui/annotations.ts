@@ -399,6 +399,7 @@ const SELECTED_ANNOTATION_JSON_KEY = 'selectedAnnotation';
 const ANNOTATION_COLOR_JSON_KEY = 'annotationColor';
 const ANNOTATION_FILL_OPACITY_JSON_KEY = 'annotationFillOpacity';
 const ANNOTATION_POINT_SIZE_JSON_KEY = 'annotationPointSize'
+
 export function UserLayerWithAnnotationsMixin<TBase extends {new (...args: any[]): UserLayer}>(
     Base: TBase) {
   abstract class C extends Base implements UserLayerWithAnnotations {
@@ -466,6 +467,7 @@ export function UserLayerWithAnnotationsMixin<TBase extends {new (...args: any[]
     getAnnotationText(annotation: Annotation) {
       return annotation.description || '';
     }
+
   }
   return C;
 }

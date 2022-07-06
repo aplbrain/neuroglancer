@@ -96,6 +96,8 @@ function getPointFromAnnotation(annotation: Annotation): vec3 {
     case AnnotationType.LINE_STRIP:
     case AnnotationType.COLLECTION:
       return annotation.source;
+    case AnnotationType.CLIPPING_PLANE:
+      return annotation.pointA;
   }
 }
 

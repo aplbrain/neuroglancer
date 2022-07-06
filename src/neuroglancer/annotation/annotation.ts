@@ -1,4 +1,4 @@
-import {Annotation, AnnotationReference, AnnotationSource, annotationToJson, AnnotationType, AxisAlignedBoundingBox, Collection, Ellipsoid, getAnnotationTypeHandler, Line, LineStrip, LocalAnnotationSource, Point, restoreAnnotation} from 'neuroglancer/annotation';
+import {Annotation, AnnotationReference, AnnotationSource, annotationToJson, AnnotationType, AxisAlignedBoundingBox, Collection, Ellipsoid, getAnnotationTypeHandler, Line, LineStrip, LocalAnnotationSource, Point, restoreAnnotation, ClippingPlane} from 'neuroglancer/annotation';
 import {PlaceBoundingBoxTool} from 'neuroglancer/annotation/bounding_box';
 import {PlaceSphereTool} from 'neuroglancer/annotation/ellipsoid';
 import {AnnotationLayerState} from 'neuroglancer/annotation/frontend';
@@ -463,6 +463,8 @@ export function getSourcePoint(annotation: Annotation) {
     case AnnotationType.SPOKE:
     case AnnotationType.COLLECTION:
       return (<LineStrip>annotation).source;
+    case AnnotationType.CLIPPING_PLANE:
+      return (<ClippingPlane>annotation).pointA;
   }
 }
 

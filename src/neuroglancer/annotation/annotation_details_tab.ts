@@ -1,4 +1,4 @@
-import {Annotation, AnnotationReference, AnnotationSource, AnnotationType, AxisAlignedBoundingBox, Collection, Ellipsoid, getAnnotationTypeHandler, Line, LineStrip, LocalAnnotationSource, Point, Spoke} from 'neuroglancer/annotation';
+import {Annotation, AnnotationReference, AnnotationSource, AnnotationType, AxisAlignedBoundingBox, Collection, Ellipsoid, getAnnotationTypeHandler, Line, LineStrip, LocalAnnotationSource, Point, Spoke, ClippingPlane} from 'neuroglancer/annotation';
 import {AnnotationLayerState} from 'neuroglancer/annotation/frontend';
 import {createPointAnnotation} from 'neuroglancer/annotation/point';
 import {VoxelSize} from 'neuroglancer/navigation_state';
@@ -317,6 +317,9 @@ export class AnnotationDetailsTab extends Tab {
       case AnnotationType.COLLECTION:
         this.generatePointAnnotations((<LineStrip>annotation).entries, parent, true);
         return [];
+      case AnnotationType.CLIPPING_PLANE:
+        const clip = (<ClippingPlane>annotation);
+        return [clip.pointA, clip.pointB];
     }
   }
 
