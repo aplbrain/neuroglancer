@@ -438,7 +438,8 @@ export class GraphOperationLayerView extends Tab {
               }
               // TODO: Merge unsupported with edits
               const view = (<any>window)['viewer'];
-              view.differ.purgeHistory();
+              // NEUVUE DEV NOTE: Keep differ stack intact for tracking purposes.
+              // view.differ.purgeHistory();
               view.differ.ignoreChanges();
               // Add splitOperationId to window
               (<any>window)["operation_ids"].push(splitOperationId);
