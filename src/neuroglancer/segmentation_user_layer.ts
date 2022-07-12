@@ -466,7 +466,8 @@ export class SegmentationUserLayer extends Base {
     const disposeUndoRedoAfterEdit = () => {
       const view = (<any>window)['viewer'];
       view.deactivateEditMode();
-      view.differ.purgeHistory();
+      // NEUVUE DEV NOTE: Keep differ stack intact for tracking purposes.
+      // view.differ.purgeHistory();
       view.differ.ignoreChanges();
     };
     switch (action) {

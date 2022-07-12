@@ -454,7 +454,8 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
               // TODO: Merge unsupported with edits
               const view = (<any>window)['viewer'];
               view.deactivateEditMode();
-              view.differ.purgeHistory();
+              // NEUVUE DEV NOTE: Keep differ stack intact for tracking purposes.
+              // view.differ.purgeHistory();
               view.differ.ignoreChanges();
               // Add mergeOperationId to window
               (<any>window)["operation_ids"].push(mergeOperationId);
