@@ -52,7 +52,7 @@ import {RangeWidget} from 'neuroglancer/widget/range';
 import {StackView, Tab} from 'neuroglancer/widget/tab_view';
 import {makeTextIconButton} from 'neuroglancer/widget/text_icon_button';
 import {TimeSegmentWidget} from 'neuroglancer/widget/time_segment_widget';
-import {getEnableSound} from 'neuroglancer/preferences/user_preferences';
+import {playSoundError, playSoundSplitSuccess} from 'neuroglancer/sound_effects.ts';
 
 type GraphOperationMarkerId = {
   id: string,
@@ -335,22 +335,6 @@ export class GraphOperationLayerView extends Tab {
     this.registerDisposer(annotationLayer.transform.changed.add(updateView));
     this.updateView();
 
-    const audio = document.createElement("audio");
-    const playSoundSuccess = () => {
-      if (getEnableSound().value) {
-        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/success.m4a")
-        audio.setAttribute("autoplay", "true")
-        audio.play()
-      }
-    }
-    const playSoundError = () => {
-      if (getEnableSound().value){
-        audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/error.m4a")
-        audio.setAttribute("autoplay", "true")
-        audio.play()
-      }
-    }
-
     const toolbox = document.createElement('div');
     toolbox.className = 'neuroglancer-graphoperation-toolbox';
 
@@ -394,7 +378,7 @@ export class GraphOperationLayerView extends Tab {
 
             } else {
                //success audio
-               playSoundSuccess();
+               playSoundSplitSuccess();
 
               let segmentationState = this.annotationLayer.segmentationState.value!;
               for (let segment of [...sinks, ...sources]) {
@@ -719,7 +703,6 @@ class SplitPreview extends RefCounted {
   private previewPending = false;
   private cachedPreview = false;
   private cachedLegality = false;
-  private audio = document.createElement("audio");
 
   constructor(
       public wrapper: Borrowed<SegmentationUserLayerWithGraph>,
@@ -734,23 +717,6 @@ class SplitPreview extends RefCounted {
       this.cachedPreview = false;
     }));
 
-  }
-
-
-  private playSoundSuccess() {
-    if (getEnableSound().value) {
-      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/success.m4a");
-      this.audio.setAttribute("autoplay", "true");
-      this.audio.play();
-    }
-  }
-
-  private playSoundError = () => {
-    if (getEnableSound().value) {
-      this.audio.setAttribute("src", "https://neuvue-public-data.s3.amazonaws.com/error.m4a")
-      this.audio.setAttribute("autoplay", "true")
-      this.audio.play()
-    }
   }
 
   private createPreviewButton() {
@@ -780,7 +746,7 @@ class SplitPreview extends RefCounted {
               this.wrapper.chunkedGraphLayer!.splitPreview(sources, sinks)
                   .then(({supervoxelConnectedComponents, isSplitIllegal}) => {
                     //success audio
-                    this.playSoundSuccess();
+                    playSoundSplitSuccess();
                     this.previewPending = false;
                     // Cache results in case the user wants to toggle looking at preview and
                     // multicut
@@ -791,13 +757,13 @@ class SplitPreview extends RefCounted {
                   })
                   .catch(() => {
                     //fail audio
-                    this.playSoundError();
+                    playSoundError();
                     this.revertPreviewButton();
                     this.previewPending = false;
                   });
             } else {
               //fail audio
-              this.playSoundError();
+              playSoundError();
               StatusMessage.showTemporaryMessage(
                   'You must select at least one source and one sink to perform a split preview.',
                   5000);

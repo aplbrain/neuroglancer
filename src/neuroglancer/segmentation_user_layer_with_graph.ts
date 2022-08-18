@@ -38,8 +38,8 @@ import {Borrowed, RefCounted} from 'neuroglancer/util/disposable';
 import {vec3} from 'neuroglancer/util/geom';
 import {parseArray, verifyObjectProperty} from 'neuroglancer/util/json';
 import {Uint64} from 'neuroglancer/util/uint64';
-
 import {NullarySignal} from './util/signal';
+import {playSoundError, playSoundMergeSuccess} from 'neuroglancer/sound_effects.ts';
 
 // Already defined in segmentation_user_layer.ts
 const EQUIVALENCES_JSON_KEY = 'equivalences';
@@ -427,6 +427,7 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
     }
 
     mergeSelectSecond() {
+
       const {segmentSelectionState, rootSegments, rootSegmentsAfterEdit} = this.displayState;
       if (segmentSelectionState.hasSelectedSegment) {
         const currentSegmentSelection: SegmentSelection = {
@@ -459,11 +460,13 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
               view.differ.ignoreChanges();
               // Add mergeOperationId to window
               (<any>window)["operation_ids"].push(mergeOperationId);
+              playSoundMergeSuccess();
             });
           });
         } else {
           StatusMessage.showTemporaryMessage(
               `Merge unsuccessful - graph layer not initialized.`, 3000);
+          playSoundError();
         }
       }
     }
@@ -514,7 +517,7 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
                   // TODO: Merge unsupported with edits
                   const view = (<any>window)['viewer'];
                   view.deactivateEditMode();
-                  view.differ.purgeHistory();
+                  // view.differ.purgeHistory();
                   view.differ.ignoreChanges();
                   // Add splitOperationId to window
                   (<any>window)["operation_ids"].push(splitOperationId);
