@@ -27,6 +27,7 @@ import {vec3} from 'neuroglancer/util/geom';
 import {verify3dVec, verifyObjectProperty} from 'neuroglancer/util/json';
 import {Uint64} from 'neuroglancer/util/uint64';
 import {RPC} from 'neuroglancer/worker_rpc';
+import {playSoundError} from 'neuroglancer/sound_effects.ts';
 
 export const GRAPH_SERVER_NOT_SPECIFIED = Symbol('Graph Server Not Specified.');
 
@@ -283,6 +284,7 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
       const {errorPrefix = ''} = options;
       status.setErrorMessage(errorPrefix + msg);
       status.setVisible(true);
+      playSoundError();
       throw new Error(`[${response.status}] ${errorPrefix}${msg}`);
     }
   }
