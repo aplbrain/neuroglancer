@@ -53,6 +53,7 @@ import {SegmentSetWidget} from 'neuroglancer/widget/segment_set_widget';
 import {ShaderCodeWidget} from 'neuroglancer/widget/shader_code_widget';
 import {Tab} from 'neuroglancer/widget/tab_view';
 import {Uint64EntryWidget} from 'neuroglancer/widget/uint64_entry_widget';
+import {setClipboard} from 'neuroglancer/util/clipboard';
 
 const SELECTED_ALPHA_JSON_KEY = 'selectedAlpha';
 const NOT_SELECTED_ALPHA_JSON_KEY = 'notSelectedAlpha';
@@ -512,6 +513,10 @@ export class SegmentationUserLayer extends Base {
         this.highlightSegment();
         break;
       }
+      case 'copy-segment': {
+        this.copySegment();
+        break;
+      }
       case 'merge-select-first': {
         this.mergeSelectFirst();
         break;
@@ -559,6 +564,20 @@ export class SegmentationUserLayer extends Base {
         highlightedSegments.delete(segment);
       } else {
         highlightedSegments.add(segment);
+      }
+    }
+  }
+
+  copySegment() {
+    let {segmentSelectionState} = this.displayState;
+    if (segmentSelectionState.hasSelectedSegment) {
+      let segment = segmentSelectionState.selectedSegment;
+      let {rootSegments} = this.displayState;
+      if (rootSegments.has(segment)) {
+        setClipboard(segment.toString());
+      } else {
+        StatusMessage.showTemporaryMessage(
+            `Can't copy root segment - segment is not currently selected.`, 3000);
       }
     }
   }

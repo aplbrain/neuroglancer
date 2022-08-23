@@ -99,6 +99,7 @@ export function getDefaultRenderedDataPanelBindings() {
           'at:backquote': 'complete-annotation-viakey',
           'at:mousedown2': 'move-to-mouse-position',
           'at:control+mousedown2': 'select-annotation',
+          'at:alt+mousedown2': 'copy-segment',
           'at:alt+mousedown0': 'move-annotation',
           'at:control+alt+mousedown2': 'delete-annotation',
           'at:control+shift+mousedown0': 'refresh-mesh',
