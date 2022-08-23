@@ -575,6 +575,9 @@ export class SegmentationUserLayer extends Base {
       let {rootSegments} = this.displayState;
       if (rootSegments.has(segment)) {
         setClipboard(segment.toString());
+        StatusMessage.showTemporaryMessage(
+            `Copied segment ${segment} to clipboard.`, 3000);
+        
       } else {
         StatusMessage.showTemporaryMessage(
             `Unable to copy root segment to clipboard - segment is not currently selected.`, 3000);
