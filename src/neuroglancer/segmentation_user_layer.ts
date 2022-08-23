@@ -577,7 +577,7 @@ export class SegmentationUserLayer extends Base {
         setClipboard(segment.toString());
       } else {
         StatusMessage.showTemporaryMessage(
-            `Can't copy root segment - segment is not currently selected.`, 3000);
+            `Unable to copy root segment to clipboard - segment is not currently selected.`, 3000);
       }
     }
   }
