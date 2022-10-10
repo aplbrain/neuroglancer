@@ -14,17 +14,17 @@ function playSound(src: string) {
 }
 
 export const playSoundSplitSuccess = () => {
-    playSound("https://neuvue-public-data.s3.amazonaws.com/success.m4a");
+    playSound("https://microns-neuvue-datalake.s3.amazonaws.com/public/success.m4a");
 }
 
 export const playSoundMergeSuccess = () => {
-    playSound("https://neuvue-public-data.s3.amazonaws.com/success2.m4a");
+    playSound("https://microns-neuvue-datalake.s3.amazonaws.com/public/success2.m4a");
 }
 
 export const playSoundError = () => {
     if (Math.random() < 0.05) {
-        playSound("https://neuvue-public-data.s3.amazonaws.com/meep_merp.mp3");
+        playSound("https://microns-neuvue-datalake.s3.amazonaws.com/public/meep_merp.mp3");
     }
-    playSound("https://neuvue-public-data.s3.amazonaws.com/error.m4a");
+    playSound("https://microns-neuvue-datalake.s3.amazonaws.com/public/error.m4a");
 }
 
