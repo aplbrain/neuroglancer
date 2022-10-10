@@ -387,6 +387,12 @@ export class GraphOperationLayerView extends Tab {
               segmentationState.rootSegmentsAfterEdit!.clear();
               segmentationState.rootSegments.add(splitRoots);
               segmentationState.rootSegmentsAfterEdit!.add(splitRoots);
+              
+              if (splitRoots.length === 1) {
+                this.wrapper.displayState.segmentSelectionState.selectedSegment = splitRoots[0]
+                this.wrapper.graphOperationLayerState.value!.segmentationState.value!.segmentSelectionState.selectedSegment = splitRoots[0]
+                this.annotationLayer.segmentationState.value!.segmentSelectionState.selectedSegment = splitRoots[0]
+              }
 
               // Access split points mode checkbox value 
               let splitPointscheckbox = document.getElementById('multi-split-mode-checkbox') as HTMLInputElement;
@@ -414,10 +420,10 @@ export class GraphOperationLayerView extends Tab {
                 console.log("Regenerating Path!!!");
                 let has_path = this.wrapper.pathFinderState.pathBetweenSupervoxels.hasPath;
                 if (has_path) {
-                  setTimeout(function() {
+                  // setTimeout(function() {
                     let find_path_button = document.getElementById('find-path-button') as HTMLButtonElement;
                     find_path_button!.click();
-                  }, 3000);
+                  // }, 3000);
                 }
               }
               // TODO: Merge unsupported with edits
