@@ -448,6 +448,10 @@ export class Viewer extends RefCounted implements ViewerState {
     if (error) {
       error.style.display = 'none';
     }
+
+    // Disable Seung Lab's What's New in APL Neuroglancer
+    localStorage.setItem("neuroglancer-disableWhatsNew", "true")
+
     if (!localStorage.getItem('neuroglancer-disableWhatsNew')) {
       findWhatsNew(this);
     }
