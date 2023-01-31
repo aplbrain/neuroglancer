@@ -372,13 +372,13 @@ export class GraphOperationLayerView extends Tab {
             const splitRoots = this.wrapper.chunkedGraphLayer!.getNewRootIdsFromSplitResponse(splitResponse);
             const splitOperationId = this.wrapper.chunkedGraphLayer!.getOperationIdFromOperationResponse(splitResponse);
             if (splitRoots.length === 0) {
-              StatusMessage.showTemporaryMessage(`No split found.`, 3000);
               //fail audio
               playSoundError();
+              StatusMessage.showTemporaryMessage(`No split found.`, 3000);
 
             } else {
-               //success audio
-               playSoundSplitSuccess();
+              //success audio
+              playSoundSplitSuccess();
 
               let segmentationState = this.annotationLayer.segmentationState.value!;
               for (let segment of [...sinks, ...sources]) {
@@ -398,32 +398,12 @@ export class GraphOperationLayerView extends Tab {
               let splitPointscheckbox = document.getElementById('multi-split-mode-checkbox') as HTMLInputElement;
               let splitPointsValue = splitPointscheckbox.checked;
               if (splitPointsValue) {
-                // remove red and blue points
-                for (const annotation of sourceA) {
-                  const ref = annotationLayer.sourceA.getReference(annotation.id);
-                  try {
-                    annotationLayer.sourceA.delete(ref);
-                  } finally {
-                    ref.dispose();
-                  }
-                }
-                for (const annotation of sourceB) {
-                  const ref = annotationLayer.sourceB.getReference(annotation.id);
-                  try {
-                    annotationLayer.sourceB.delete(ref);
-                  } finally {
-                    ref.dispose();
-                  }
-                }
-
                 // regenerate path
-                console.log("Regenerating Path!!!");
+                console.log("Regenerating Path.");
                 let has_path = this.wrapper.pathFinderState.pathBetweenSupervoxels.hasPath;
                 if (has_path) {
-                  // setTimeout(function() {
                     let find_path_button = document.getElementById('find-path-button') as HTMLButtonElement;
                     find_path_button!.click();
-                  // }, 3000);
                 }
               }
               // TODO: Merge unsupported with edits
@@ -433,6 +413,25 @@ export class GraphOperationLayerView extends Tab {
               view.differ.ignoreChanges();
               // Add splitOperationId to window
               (<any>window)["operation_ids"].push(splitOperationId);
+
+              // remove red and blue points
+              for (const annotation of sourceA) {
+                const ref = annotationLayer.sourceA.getReference(annotation.id);
+                try {
+                  annotationLayer.sourceA.delete(ref);
+                } finally {
+                  ref.dispose();
+                }
+              }
+              
+              for (const annotation of sourceB) {
+                const ref = annotationLayer.sourceB.getReference(annotation.id);
+                try {
+                  annotationLayer.sourceB.delete(ref);
+                } finally {
+                  ref.dispose();
+                }
+              }
             }
           });
         }
