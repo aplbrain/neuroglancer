@@ -1320,7 +1320,7 @@ export class GraphConnection extends SegmentationGraphSourceConnection {
   public annotationLayerStates: AnnotationLayerState[] = [];
   public mergeAnnotationState: AnnotationLayerState;
   public findPathAnnotationState: AnnotationLayerState;
-
+  public operationIds: Uint64[] = [];
   constructor(
     public graph: GrapheneGraphSource,
     private layer: SegmentationUserLayer,
@@ -1718,16 +1718,20 @@ export class GraphConnection extends SegmentationGraphSourceConnection {
       );
       return false;
     } else {
-      const splitRoots = await this.graph.graphServer.splitSegments(
+      const splitResult = await this.graph.graphServer.splitSegments(
         [...sinks].map((x) => selectionInNanometers(x, annotationToNanometers)),
-        [...sources].map((x) =>
-          selectionInNanometers(x, annotationToNanometers),
-        ),
+        [...sources].map((x) => selectionInNanometers(x, annotationToNanometers)),
       );
+    
+      // Extract the new root IDs and the Operation ID from the result
+      const { splitRoots, operationId } = splitResult;
       if (splitRoots.length === 0) {
         StatusMessage.showTemporaryMessage(`No split found.`, 3000);
         return false;
       } else {
+        console.log("Operation ID:", operationId);
+        StatusMessage.showTemporaryMessage(`Operation ID ${operationId}`, 3000);
+        this.operationIds.push(operationId);
         const focusSegment = multicutState.focusSegment.value!;
         multicutState.reset(); // need to clear the focus segment before deleting the multicut segment
         const { segmentsState } = this;
@@ -1768,17 +1772,20 @@ export class GraphConnection extends SegmentationGraphSourceConnection {
     submission.error = undefined;
     for (let i = 1; i <= attempts; i++) {
       try {
-        const newRoot = await this.graph.graphServer.mergeSegments(
+        const mergeResult = await this.graph.graphServer.mergeSegments(
           selectionInNanometers(submission.sink, annotationToNanometers),
           selectionInNanometers(submission.source!, annotationToNanometers),
         );
+        const { mergeRoot, operationId } = mergeResult;
+        StatusMessage.showTemporaryMessage(`Operation ID ${operationId}`, 3000);
+        this.operationIds.push(operationId);
         const oldValues = new Uint64Set();
         oldValues.add(submission.sink.rootId);
         oldValues.add(submission.source!.rootId);
         const newValues = new Uint64Set();
-        newValues.add(newRoot);
+        newValues.add(mergeRoot);
         this.state.replaceSegments(oldValues, newValues);
-        return newRoot;
+        return mergeRoot;
       } catch (err) {
         if (i === attempts) {
           submission.error = err.message || "unknown";
@@ -2008,7 +2015,7 @@ class GrapheneGraphServerInterface {
   async mergeSegments(
     first: SegmentSelection,
     second: SegmentSelection,
-  ): Promise<Uint64> {
+  ): Promise<{ mergeRoot: Uint64, operationId: Uint64 }> {
     const { url } = this;
     if (url === "") {
       return Promise.reject(GRAPH_SERVER_NOT_SPECIFIED);
@@ -2030,7 +2037,9 @@ class GrapheneGraphServerInterface {
     try {
       const response = await promise;
       const jsonResp = await response.json();
-      return Uint64.parseString(jsonResp["new_root_ids"][0]);
+      const mergeRoot = Uint64.parseString(jsonResp["new_root_ids"][0])
+      const operationId = Uint64.parseString(jsonResp["operation_id"]);
+      return {mergeRoot, operationId}; 
     } catch (e) {
       if (e instanceof HttpError) {
         const msg = await parseGrapheneError(e);
@@ -2043,7 +2052,7 @@ class GrapheneGraphServerInterface {
   async splitSegments(
     first: SegmentSelection[],
     second: SegmentSelection[],
-  ): Promise<Uint64[]> {
+  ): Promise<{ splitRoots: Uint64[], operationId: Uint64 }> {
     const { url } = this;
     if (url === "") {
       return Promise.reject(GRAPH_SERVER_NOT_SPECIFIED);
@@ -2067,11 +2076,12 @@ class GrapheneGraphServerInterface {
       errorPrefix: "Split failed: ",
     });
     const jsonResp = await response.json();
-    const final: Uint64[] = new Array(jsonResp["new_root_ids"].length);
-    for (let i = 0; i < final.length; ++i) {
-      final[i] = Uint64.parseString(jsonResp["new_root_ids"][i]);
+    const splitRoots: Uint64[] = new Array(jsonResp["new_root_ids"].length);
+    for (let i = 0; i < splitRoots.length; ++i) {
+      splitRoots[i] = Uint64.parseString(jsonResp["new_root_ids"][i]);
     }
-    return final;
+    const operationId = Uint64.parseString(jsonResp["operation_id"]);
+    return {splitRoots, operationId};
   }
 
   async filterLatestRoots(segments: Uint64[]): Promise<Uint64[]> {
