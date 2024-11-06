@@ -5,6 +5,7 @@ import {Dialog} from 'neuroglancer/dialog';
 import {Overlay} from 'neuroglancer/overlay';
 import {dismissUnshareWarning, getSaveToAddressBar, getUnshareWarning} from 'neuroglancer/preferences/user_preferences';
 import {StatusMessage} from 'neuroglancer/status';
+import {br} from 'neuroglancer/util/br';
 import {RefCounted} from 'neuroglancer/util/disposable';
 import {getRandomHexString} from 'neuroglancer/util/random';
 import {Trackable} from 'neuroglancer/util/trackable';
@@ -200,7 +201,8 @@ export class SaveState extends RefCounted {
 
     this.key = getRandomHexString();
     params.set('local_id', this.key);
-    history.pushState({}, '', `${window.location.origin}${window.location.pathname}?${params.toString()}`);
+    history.pushState(
+        {}, '', `${window.location.origin}${window.location.pathname}?${params.toString()}`);
   }
   private reassign(master: any) {
     const hist = <string[]>master.history;
@@ -294,9 +296,8 @@ type FieldConfig = {
 };
 
 class SaveDialog extends Overlay {
-  constructor(public viewer: Viewer, jsonString?: string, getUrlType?: UrlType, hidden = false) {
-    super(hidden);
-    const br = () => document.createElement('br');
+  constructor(public viewer: Viewer, jsonString?: string, getUrlType?: UrlType) {
+    super();
     const jsonURLDefault = `LINK SHORTNER INACCESSIBLE`;
 
     const urlStart = `${window.location.origin}${window.location.pathname}`;

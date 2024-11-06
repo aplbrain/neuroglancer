@@ -50,7 +50,7 @@ export function restoreSegmentSelection(x: any): SegmentSelection {
 }
 
 export class ChunkedGraphChunkSource extends SliceViewChunkSource implements
-    ChunkedGraphChunkSourceInterface {
+  ChunkedGraphChunkSourceInterface {
   rootSegments: Uint64Set;
   spec: ChunkedGraphChunkSpecification;
 
@@ -70,19 +70,19 @@ export class ChunkedGraphChunkSource extends SliceViewChunkSource implements
   updateRootSegments(rpc: RPC, rootSegments: Uint64Set) {
     this.rootSegments = rootSegments;
     rpc.invoke(
-        CHUNKED_GRAPH_SOURCE_UPDATE_ROOT_SEGMENTS_RPC_ID,
-        {'id': this.rpcId, 'rootSegments': this.rootSegments.rpcId});
+      CHUNKED_GRAPH_SOURCE_UPDATE_ROOT_SEGMENTS_RPC_ID,
+      { 'id': this.rpcId, 'rootSegments': this.rootSegments.rpcId });
   }
 }
 
 export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
   private graphurl: string;
-  private leafRequestsStatusMessage: StatusMessage|undefined;
+  private leafRequestsStatusMessage: StatusMessage | undefined;
   leafRequestsActive = new TrackableBoolean(true, true);
 
   constructor(
-      chunkManager: ChunkManager, url: string, public sources: ChunkedGraphChunkSource[][],
-      displayState: VisibleSegmentsState&RenderLayerOptions) {
+    chunkManager: ChunkManager, url: string, public sources: ChunkedGraphChunkSource[][],
+    displayState: VisibleSegmentsState & RenderLayerOptions) {
     super(chunkManager, sources, {
       rpcTransfer: {
         'chunkManager': chunkManager.rpcId,
@@ -109,15 +109,14 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
   }
 
   async getRoot(selection: SegmentSelection, timestamp?: string): Promise<Uint64> {
-    const {url} = this;
+    const { url } = this;
     if (url === '') {
       return Promise.resolve(selection.segmentId);
     }
 
     const promise = authFetch(
-        `${url}/node/${String(selection.segmentId)}/root?int64_as_str=1${
-            timestamp ? `&timestamp=${timestamp}` : ``}`,
-        {}, responseIdentity, undefined, false);
+      `${url}/node/${String(selection.segmentId)}/root?stop_layer=6&int64_as_str=1${timestamp ? `&timestamp=${timestamp}` : ``}`,
+      {}, responseIdentity, undefined, false);
 
     const response = await this.withErrorMessage(promise, {
       initialMessage: `Retrieving root for segment ${selection.segmentId}`,
@@ -127,21 +126,21 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
     return Uint64.parseString(jsonResp['root_id']);
   }
 
-  async mergeSegments(first: SegmentSelection, second: SegmentSelection): Promise<any> {
-    const {url} = this;
+  async mergeSegments(first: SegmentSelection, second: SegmentSelection): Promise<Uint64> {
+    const { url } = this;
     if (url === '') {
       return Promise.reject(GRAPH_SERVER_NOT_SPECIFIED);
     }
 
     const promise = authFetch(
-        `${url}/merge?int64_as_str=1`, {
-          method: 'POST',
-          body: JSON.stringify([
-            [String(first.segmentId), ...first.position.values()],
-            [String(second.segmentId), ...second.position.values()]
-          ])
-        },
-        responseIdentity, undefined, false);
+      `${url}/merge?int64_as_str=1`, {
+      method: 'POST',
+      body: JSON.stringify([
+        [String(first.segmentId), ...first.position.values()],
+        [String(second.segmentId), ...second.position.values()]
+      ])
+    },
+      responseIdentity, undefined, false);
 
     const response = await this.withErrorMessage(promise, {
       initialMessage: `Merging ${first.segmentId} and ${second.segmentId}`,
@@ -151,21 +150,21 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
     return jsonResp
   }
 
-  async splitSegments(first: SegmentSelection[], second: SegmentSelection[]): Promise<any> {
-    const {url} = this;
+  async splitSegments(first: SegmentSelection[], second: SegmentSelection[]): Promise<Uint64[]> {
+    const { url } = this;
     if (url === '') {
       return Promise.reject(GRAPH_SERVER_NOT_SPECIFIED);
     }
 
     const promise = authFetch(
-        `${url}/split?int64_as_str=1`, {
-          method: 'POST',
-          body: JSON.stringify({
-            'sources': first.map(x => [String(x.segmentId), ...x.position.values()]),
-            'sinks': second.map(x => [String(x.segmentId), ...x.position.values()])
-          })
-        },
-        responseIdentity, undefined, false);
+      `${url}/split?int64_as_str=1`, {
+      method: 'POST',
+      body: JSON.stringify({
+        'sources': first.map(x => [String(x.segmentId), ...x.position.values()]),
+        'sinks': second.map(x => [String(x.segmentId), ...x.position.values()])
+      })
+    },
+      responseIdentity, undefined, false);
 
     const response = await this.withErrorMessage(promise, {
       initialMessage: `Splitting ${first.length} sources from ${second.length} sinks`,
@@ -189,25 +188,25 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
   }
 
   async splitPreview(first: SegmentSelection[], second: SegmentSelection[]):
-      Promise<{supervoxelConnectedComponents: Uint64Set[], isSplitIllegal: boolean}> {
-    const {url} = this;
+    Promise<{ supervoxelConnectedComponents: Uint64Set[], isSplitIllegal: boolean }> {
+    const { url } = this;
     if (url === '') {
       return Promise.reject(GRAPH_SERVER_NOT_SPECIFIED);
     }
 
     const promise = authFetch(
-        `${url}/graph/split_preview?int64_as_str=1`, {
-          method: 'POST',
-          body: JSON.stringify({
-            'sources': first.map(x => [String(x.segmentId), ...x.position.values()]),
-            'sinks': second.map(x => [String(x.segmentId), ...x.position.values()])
-          })
-        },
-        responseIdentity, undefined, false);
+      `${url}/graph/split_preview?int64_as_str=1`, {
+      method: 'POST',
+      body: JSON.stringify({
+        'sources': first.map(x => [String(x.segmentId), ...x.position.values()]),
+        'sinks': second.map(x => [String(x.segmentId), ...x.position.values()])
+      })
+    },
+      responseIdentity, undefined, false);
 
     const response = await this.withErrorMessage(promise, {
       initialMessage:
-          `Calculating split preview: ${first.length} sources, and ${second.length} sinks`,
+        `Calculating split preview: ${first.length} sources, and ${second.length} sinks`,
       errorPrefix: 'Split preview failed: '
     });
     const jsonResp = await response.json();
@@ -223,24 +222,24 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
       supervoxelConnectedComponents[i] = connectedComponentSet;
     }
     const jsonIllegalSplitKey = 'illegal_split';
-    return {supervoxelConnectedComponents, isSplitIllegal: jsonResp[jsonIllegalSplitKey]};
+    return { supervoxelConnectedComponents, isSplitIllegal: jsonResp[jsonIllegalSplitKey] };
   }
 
   async findPath(first: SegmentSelection, second: SegmentSelection, precisionMode: boolean):
-      Promise<number[][]> {
-    const {url} = this;
+    Promise<number[][]> {
+    const { url } = this;
     if (url === '') {
       return Promise.reject(GRAPH_SERVER_NOT_SPECIFIED);
     }
 
     const promise =
-        authFetch(`${url}/graph/find_path?int64_as_str=1&precision_mode=${Number(precisionMode)}`, {
-          method: 'POST',
-          body: JSON.stringify([
-            [String(first.rootId), ...first.position.values()],
-            [String(second.rootId), ...second.position.values()]
-          ])
-        });
+      authFetch(`${url}/graph/find_path?int64_as_str=1&precision_mode=${Number(precisionMode)}`, {
+        method: 'POST',
+        body: JSON.stringify([
+          [String(first.rootId), ...first.position.values()],
+          [String(second.rootId), ...second.position.values()]
+        ])
+      });
 
     const response = await this.withErrorMessage(promise, {
       initialMessage: `Finding path between ${first.segmentId} and ${second.segmentId}`,
@@ -253,12 +252,12 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
     const missingL2Ids = jsonResponse[missingL2IdsKey];
     if (missingL2Ids && missingL2Ids.length > 0) {
       StatusMessage.showTemporaryMessage(
-          'Some level 2 meshes are missing, so the path shown may have a poor level of detail.');
+        'Some level 2 meshes are missing, so the path shown may have a poor level of detail.');
     }
     return centroids;
   }
 
-  draw() {}
+  draw() { }
 
   async withErrorMessage(promise: Promise<Response>, options: {
     initialMessage: string,
@@ -281,7 +280,7 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
       } catch {
         msg = await response.text();
       }
-      const {errorPrefix = ''} = options;
+      const { errorPrefix = '' } = options;
       status.setErrorMessage(errorPrefix + msg);
       status.setVisible(true);
       playSoundError();
@@ -296,7 +295,7 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
       StatusMessage.showTemporaryMessage('Loading chunked graph segmentation...', 3000);
     } else if ((!this.leafRequestsStatusMessage) && (!leafRequestsActive)) {
       this.leafRequestsStatusMessage = StatusMessage.showTemporaryMessage(
-          'At this zoom level, chunked graph segmentation will not be loaded. Please zoom in if you wish to load it.', 3000);
+        'At this zoom level, chunked graph segmentation will not be loaded. Please zoom in if you wish to load it.', 3000);
     }
   }
 }

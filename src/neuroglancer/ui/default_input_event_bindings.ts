@@ -47,9 +47,8 @@ export function getDefaultGlobalBindings() {
     map.set('shift+space', 'toggle-layout-alternative');
     map.set('backslash', 'toggle-show-statistics');
     map.set('keyg', 'switch-multicut-group');
-    map.set('keyu', 'decrease-segmentation-opacity');
-    map.set('keyp', 'refresh-all-meshes');
-    map.set('keyi', 'increase-segmentation-opacity');
+    map.set('keyi', 'decrease-segmentation-opacity');
+    map.set('keyu', 'increase-segmentation-opacity');
     map.set('keyx', 'dismiss-all-status-messages');
     defaultGlobalBindings = map;
   }
