@@ -896,10 +896,6 @@ export class Viewer extends RefCounted implements ViewerState {
     new UserReportDialog(this, image);
   }
 
-  showSaveDialog(getUrlType?: UrlType, jsonString?: string) {
-    this.saver!.showSaveDialog(this, jsonString, getUrlType, true);
-  }
-
   showHistory() {
     this.saver!.showHistory(this);
   }
@@ -954,7 +950,6 @@ export class Viewer extends RefCounted implements ViewerState {
       const entry = this.saver.pull();
       if (savedUrl && !entry.dirty) {
         callback();
-        this.showSaveDialog(getUrlType, this.saver.savedUrl);
         return;
       }
     }
@@ -978,7 +973,6 @@ export class Viewer extends RefCounted implements ViewerState {
                   }
                   if (savestate) {
                     callback();
-                    this.showSaveDialog(getUrlType, response);
                   }
                   StatusMessage.showTemporaryMessage(`Successfully shared state.`, 4000);
                   postSuccess = true;
@@ -1004,7 +998,6 @@ export class Viewer extends RefCounted implements ViewerState {
                   saverToggle(true);
                   if (!postSuccess && savestate) {
                     callback();
-                    this.showSaveDialog(getUrlType);
                   }
                 }),
             {
@@ -1015,15 +1008,11 @@ export class Viewer extends RefCounted implements ViewerState {
       } else {
         if (getUrlType === UrlType.json) {
           StatusMessage.showTemporaryMessage(`No state server found.`, 4000, {color: 'yellow'});
-          this.showSaveDialog();
-        } else {
-          this.showSaveDialog(getUrlType);
-        }
+        } 
       }
     } else {
       if (savestate) {
         callback();
-        this.showSaveDialog(getUrlType);
       }
     }
   }
