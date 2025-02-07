@@ -898,7 +898,7 @@ export class Viewer extends RefCounted implements ViewerState {
   }
 
   showSaveDialog(getUrlType?: UrlType, jsonString?: string) {
-    this.saver!.showSaveDialog(this, jsonString, getUrlType, true);
+    this.saver!.showSaveDialog(this, jsonString, getUrlType);
   }
 
   showHistory() {

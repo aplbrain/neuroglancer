@@ -181,8 +181,8 @@ export class SaveState extends RefCounted {
   private overwriteHistory(newHistory: SaveHistory[] = []) {
     this.robustSet(historyKey, JSON.stringify(newHistory));
   }
-  public showSaveDialog(viewer: Viewer, jsonString?: string, get?: UrlType, hidden = true) {
-    new SaveDialog(viewer, jsonString, get, hidden);
+  public showSaveDialog(viewer: Viewer, jsonString?: string, get?: UrlType) {
+    new SaveDialog(viewer, jsonString, get);
   }
   public showHistory(viewer: Viewer) {
     new SaveHistoryDialog(viewer, this);
