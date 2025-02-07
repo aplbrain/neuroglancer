@@ -444,7 +444,7 @@ function helper<TBase extends BaseConstructor>(Base: TBase) {
         if (this.chunkedGraphLayer) {
           const cgl = this.chunkedGraphLayer;
           this.safeToSubmit('Merge', () => {
-            cgl.mergeSegments(lastSegmentSelection, currentSegmentSelection).then((mergeResponse: any) => {
+            cgl.mergeSegments(lastSegmentSelection, currentSegmentSelection).then((mergeResponse) => {
               const mergedRoot = Uint64.parseString(mergeResponse['new_root_ids'][0]);
               const mergeOperationId = cgl.getOperationIdFromOperationResponse(mergeResponse);
               rootSegmentsAfterEdit!.clear();

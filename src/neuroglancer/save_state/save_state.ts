@@ -9,7 +9,7 @@ import {StatusMessage} from 'neuroglancer/status';
 import {RefCounted} from 'neuroglancer/util/disposable';
 import {getRandomHexString} from 'neuroglancer/util/random';
 import {Trackable} from 'neuroglancer/util/trackable';
-import {Viewer} from 'neuroglancer/viewer';
+import {UrlType, Viewer} from 'neuroglancer/viewer';
 
 
 const deprecatedKey = 'neuroglancerSaveState';
@@ -181,7 +181,9 @@ export class SaveState extends RefCounted {
   private overwriteHistory(newHistory: SaveHistory[] = []) {
     this.robustSet(historyKey, JSON.stringify(newHistory));
   }
-
+  public showSaveDialog(viewer: Viewer, jsonString?: string, get?: UrlType, hidden = true) {
+    return false;
+  }
   public showHistory(viewer: Viewer) {
     new SaveHistoryDialog(viewer, this);
   }
