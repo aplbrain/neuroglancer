@@ -115,7 +115,7 @@ export class ChunkedGraphLayer extends GenericSliceViewRenderLayer {
     }
 
     const promise = authFetch(
-      `${url}/node/${String(selection.segmentId)}/root?stop_layer=6&int64_as_str=1${timestamp ? `&timestamp=${timestamp}` : ``}`,
+      `${url}/node/${String(selection.segmentId)}/root?&int64_as_str=1${timestamp ? `&timestamp=${timestamp}` : ``}`,
       {}, responseIdentity, undefined, false);
 
     const response = await this.withErrorMessage(promise, {
